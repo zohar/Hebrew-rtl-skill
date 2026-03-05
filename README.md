@@ -1,45 +1,115 @@
-# Hebrew RTL Skill
+<div dir="rtl" align="right">
 
-A Claude Code skill for generating correctly formatted Hebrew (RTL) documents across multiple output formats.
+# כלי עיצוב עברית RTL
 
-## What It Does
+> **סקיל (Skill) ל-Cursor ול-Claude Code** שמבטיח עיצוב נכון של מסמכים בעברית — כולל כיווניות ימין-לשמאל, גופנים תואמים, ופיסוק תקני.
 
-This skill ensures proper right-to-left layout, Hebrew-compatible fonts, correct punctuation, and proper formatting whenever Claude Code produces Hebrew content. It covers:
+---
 
-- **Word (.docx)** - XML injection into Hebrew Word templates with correct `<w:bidi/>` and `<w:rtl/>` patterns
-- **PowerPoint (.pptx)** - RTL text boxes, bullet fixes, and post-processing for correct column/timeline ordering
-- **HTML / PDF** - Proper `dir="rtl"` markup with Heebo font and RTL table/list styling
+## מה זה עושה?
 
-## Key Features
+כשמבקשים מ-Cursor או מ-Claude Code לייצר תוכן בעברית — מסמך Word, מצגת PowerPoint, דף HTML או PDF — הסקיל הזה נכנס לפעולה אוטומטית ומוודא:
 
-- Automatic RTL direction and right-alignment for all Hebrew text
-- Correct BiDi handling for mixed Hebrew-English content
-- Tables, grids, and timelines ordered right-to-left (first item on the right)
-- Hebrew-compatible fonts (Arial for Office formats, Heebo for web)
-- Proper punctuation rules (hyphens only, no em/en dashes)
-- Date formatting in Israeli conventions (`DD.MM.YYYY`)
+- **כיוון טקסט** — כל הטקסט העברי זורם מימין לשמאל (RTL)
+- **גופנים** — שימוש ב-Arial למסמכים וב-Heebo לווב
+- **פיסוק** — מקף רגיל בלבד, ללא מקף ארוך (em-dash)
+- **טבלאות ורשימות** — העמודה הראשונה מימין, תבליטים בצד ימין
+- **תאריכים** — בפורמט `DD.MM.YYYY` או `15 במרץ 2025`
 
-## Installation
+---
 
-Copy `SKILL.md` into your Claude Code skills directory, or add this repository as a skill source.
+## פורמטים נתמכים
 
-## Usage
+| פורמט | גישה | הערות |
+|--------|-------|-------|
+| **Word (.docx)** | הזרקת XML לתבנית עברית | הדרך האמינה היחידה לקבל RTL תקין |
+| **PowerPoint (.pptx)** | PptxGenJS + תיקון Python | עיבוד-אחרי (post-processing) לתיקון כיוון תבליטים וטבלאות |
+| **HTML / PDF** | `dir="rtl"` + Heebo | WeasyPrint להמרה ל-PDF |
 
-The skill activates automatically when:
-- The user writes a request in Hebrew
-- The user asks for content "בעברית" (in Hebrew)
-- The user requests a Hebrew document, report, presentation, summary, or letter
+---
 
-No manual activation is needed - Claude Code will apply the correct RTL formatting rules for the target output format.
+## עקרונות מרכזיים
 
-## Formats Reference
+### Word — הדרך הנכונה
 
-| Format | Font | RTL Method |
-|--------|------|------------|
-| .docx | Arial | XML `<w:bidi/>` + `<w:rtl/>` via template injection |
-| .pptx | Arial | `rtlMode: true` + Python post-processing |
-| HTML/PDF | Heebo | `dir="rtl"` + CSS `direction: rtl` |
+```xml
+<w:p>
+  <w:pPr>
+    <w:bidi/>
+    <w:rPr><w:rtl/></w:rPr>
+  </w:pPr>
+  <w:r>
+    <w:rPr>
+      <w:rFonts w:hint="cs"/>
+      <w:rtl/>
+    </w:rPr>
+    <w:t>הטקסט כאן</w:t>
+  </w:r>
+</w:p>
+```
 
-## License
+- יש להשתמש ב-`<w:bidi/>` **ללא** מאפיינים
+- `w:hint="cs"` על כל run
+- ביסוס על תבנית Word עברית אמיתית
+
+### PowerPoint — תיקון אוטומטי
+
+- `align: "right"` + `rtlMode: true` על כל תיבת טקסט
+- הרצת `fix_rtl_pptx()` לאחר יצירת הקובץ
+- טבלאות וצירי זמן — הפריט הראשון בצד ימין
+
+### HTML / PDF
+
+```html
+<html lang="he" dir="rtl">
+```
+
+- גופן Heebo מ-Google Fonts
+- `direction: rtl` על טבלאות
+- WeasyPrint להפקת PDF
+
+---
+
+## התקנה
+
+### Cursor
+
+העתיקו את הקובץ `SKILL.md` לתיקיית הסקילים של Cursor:
+
+```
+~/.cursor/skills/hebrew-rtl/SKILL.md
+```
+
+### Claude Code
+
+העתיקו את הקובץ `SKILL.md` לתיקיית הכללים של Claude Code בשורש הפרויקט:
+
+```
+.claude/skills/hebrew-rtl/SKILL.md
+```
+
+לחלופין, הוסיפו אותו כקובץ `AGENTS.md` בתיקיית הפרויקט.
+
+---
+
+בשני הכלים, הסקיל יופעל אוטומטית בכל פעם שתבקשו תוכן בעברית.
+
+---
+
+## דוגמאות לשימוש
+
+> "תכין לי מסמך Word עם סיכום פרויקט בעברית"
+
+> "תייצר מצגת PowerPoint בעברית על תוצאות הרבעון"
+
+> "תבנה דף HTML בעברית עם טבלת נתונים"
+
+הסקיל מזהה אוטומטית בקשות בעברית ומחיל את כל כללי העיצוב.
+
+---
+
+## רישיון
 
 MIT
+
+</div>
